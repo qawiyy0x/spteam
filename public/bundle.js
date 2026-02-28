@@ -3486,28 +3486,28 @@ var require_react_dom_client_development = __commonJS({
         ))));
         null == value || "boolean" === typeof value || "" === value ? isCustomProperty ? style2.setProperty(styleName, "") : "float" === styleName ? style2.cssFloat = "" : style2[styleName] = "" : isCustomProperty ? style2.setProperty(styleName, value) : "number" !== typeof value || 0 === value || unitlessNumbers.has(styleName) ? "float" === styleName ? style2.cssFloat = value : (checkCSSPropertyStringCoercion(value, styleName), style2[styleName] = ("" + value).trim()) : style2[styleName] = value + "px";
       }
-      function setValueForStyles(node, styles2, prevStyles) {
-        if (null != styles2 && "object" !== typeof styles2)
+      function setValueForStyles(node, styles, prevStyles) {
+        if (null != styles && "object" !== typeof styles)
           throw Error(
             "The `style` prop expects a mapping from style properties to values, not a string. For example, style={{marginRight: spacing + 'em'}} when using JSX."
           );
-        styles2 && Object.freeze(styles2);
+        styles && Object.freeze(styles);
         node = node.style;
         if (null != prevStyles) {
-          if (styles2) {
+          if (styles) {
             var expandedUpdates = {};
             if (prevStyles) {
               for (var key in prevStyles)
-                if (prevStyles.hasOwnProperty(key) && !styles2.hasOwnProperty(key))
+                if (prevStyles.hasOwnProperty(key) && !styles.hasOwnProperty(key))
                   for (var longhands = shorthandToLonghand[key] || [key], i = 0; i < longhands.length; i++)
                     expandedUpdates[longhands[i]] = key;
             }
-            for (var _key in styles2)
-              if (styles2.hasOwnProperty(_key) && (!prevStyles || prevStyles[_key] !== styles2[_key]))
+            for (var _key in styles)
+              if (styles.hasOwnProperty(_key) && (!prevStyles || prevStyles[_key] !== styles[_key]))
                 for (key = shorthandToLonghand[_key] || [_key], longhands = 0; longhands < key.length; longhands++)
                   expandedUpdates[key[longhands]] = _key;
             _key = {};
-            for (var key$jscomp$0 in styles2)
+            for (var key$jscomp$0 in styles)
               for (key = shorthandToLonghand[key$jscomp$0] || [key$jscomp$0], longhands = 0; longhands < key.length; longhands++)
                 _key[key[longhands]] = key$jscomp$0;
             key$jscomp$0 = {};
@@ -3515,7 +3515,7 @@ var require_react_dom_client_development = __commonJS({
               if (key = expandedUpdates[_key2], (longhands = _key[_key2]) && key !== longhands && (i = key + "," + longhands, !key$jscomp$0[i])) {
                 key$jscomp$0[i] = true;
                 i = console;
-                var value = styles2[key];
+                var value = styles[key];
                 i.error.call(
                   i,
                   "%s a style property during rerender (%s) when a conflicting property is set (%s) can lead to styling bugs. To avoid this, don't mix shorthand and non-shorthand properties for the same value; instead, replace the shorthand with separate values.",
@@ -3526,12 +3526,12 @@ var require_react_dom_client_development = __commonJS({
               }
           }
           for (var styleName in prevStyles)
-            !prevStyles.hasOwnProperty(styleName) || null != styles2 && styles2.hasOwnProperty(styleName) || (0 === styleName.indexOf("--") ? node.setProperty(styleName, "") : "float" === styleName ? node.cssFloat = "" : node[styleName] = "");
-          for (var _styleName in styles2)
-            _key2 = styles2[_styleName], styles2.hasOwnProperty(_styleName) && prevStyles[_styleName] !== _key2 && setValueForStyle(node, _styleName, _key2);
+            !prevStyles.hasOwnProperty(styleName) || null != styles && styles.hasOwnProperty(styleName) || (0 === styleName.indexOf("--") ? node.setProperty(styleName, "") : "float" === styleName ? node.cssFloat = "" : node[styleName] = "");
+          for (var _styleName in styles)
+            _key2 = styles[_styleName], styles.hasOwnProperty(_styleName) && prevStyles[_styleName] !== _key2 && setValueForStyle(node, _styleName, _key2);
         } else
-          for (expandedUpdates in styles2)
-            styles2.hasOwnProperty(expandedUpdates) && setValueForStyle(node, expandedUpdates, styles2[expandedUpdates]);
+          for (expandedUpdates in styles)
+            styles.hasOwnProperty(expandedUpdates) && setValueForStyle(node, expandedUpdates, styles[expandedUpdates]);
       }
       function isCustomElement(tagName) {
         if (-1 === tagName.indexOf("-")) return false;
@@ -21144,9 +21144,9 @@ var require_react_dom_client_development = __commonJS({
           previousDispatcher.S(href, precedence, options);
           var ownerDocument = globalDocument;
           if (ownerDocument && href) {
-            var styles2 = getResourcesFromRoot(ownerDocument).hoistableStyles, key = getStyleKey(href);
+            var styles = getResourcesFromRoot(ownerDocument).hoistableStyles, key = getStyleKey(href);
             precedence = precedence || "default";
-            var resource = styles2.get(key);
+            var resource = styles.get(key);
             if (!resource) {
               var state = { loading: NotLoaded, preload: null };
               if (resource = ownerDocument.querySelector(
@@ -21185,7 +21185,7 @@ var require_react_dom_client_development = __commonJS({
                 count: 1,
                 state
               };
-              styles2.set(key, resource);
+              styles.set(key, resource);
             }
           }
         },
@@ -21721,31 +21721,26 @@ var require_jsx_runtime = __commonJS({
 var import_react = __toESM(require_react(), 1);
 var import_client = __toESM(require_client(), 1);
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-var styles = `
-:root{--bg:#f6f7fb;--text:#101216;--muted:#5d6c7b;--line:#e6ebf2;--panel:#fff;--blue:#0082f3;--good:#16a34a;--warn:#f59e0b;--bad:#ef4444}
-*{box-sizing:border-box} body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
-.wrap{max-width:1180px;margin:0 auto;padding:24px 18px 56px}
-.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
-.brand{font-weight:800;letter-spacing:-.02em;font-size:22px}
-.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px}
-.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}
-@media(max-width:980px){.hero{grid-template-columns:1fr}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
-.headline{font-size:44px;line-height:1.02;letter-spacing:-.03em;margin:0 0 12px}
-.sub{color:var(--muted);font-size:15px;line-height:1.5;margin:0}
-.score{display:flex;align-items:baseline;gap:10px;margin-top:16px}.score .n{font-size:56px;font-weight:800;color:var(--blue);letter-spacing:-.03em}.score .l{color:var(--muted)}
-.scams{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tag{padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:#334155;background:#fafcff}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
-@media(min-width:900px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.stat .k{font-size:11px;text-transform:uppercase;color:var(--muted)}.stat .v{margin-top:6px;font-size:15px;font-weight:700}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid-3{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:1020px){.grid-3{grid-template-columns:1fr 1fr}}
-input,button{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 12px;font-size:14px;color:var(--text)}
-button{font-weight:700;cursor:pointer}button:hover{background:#f4f8ff}
-.primary{background:var(--blue);border-color:var(--blue);color:#fff}.primary:hover{background:#0074db}
-.good{background:#f0fdf4;border-color:#bbf7d0;color:#166534}.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}.bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}
-.row{display:flex;gap:8px;flex-wrap:wrap}.muted{color:var(--muted);font-size:13px;line-height:1.45}.mt{margin-top:10px}
-.entry{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
-.badge{font-size:11px;font-weight:700;border-radius:999px;padding:4px 8px;border:1px solid}.approve{color:#166534;background:#f0fdf4;border-color:#bbf7d0}.reject{color:#991b1b;background:#fef2f2;border-color:#fecaca}.escalate{color:#92400e;background:#fffbeb;border-color:#fde68a}
+var css = `
+:root{--bg:#0b1020;--panel:#121a2f;--line:#263354;--text:#e8eeff;--muted:#a8b4d6;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--blue:#3b82f6}
+*{box-sizing:border-box}
+body{background:radial-gradient(900px 300px at 0 -10%,#1e3a8a55,transparent),var(--bg);color:var(--text)}
+.wrap{max-width:980px;margin:0 auto;padding:20px 14px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.h{font-size:24px;font-weight:800}.sub{color:var(--muted);font-size:13px}
+.badge{padding:5px 9px;border:1px solid var(--line);border-radius:999px;background:#0f1730;font-size:12px}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:920px){.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.k{font-size:12px;color:var(--muted)}.v{font-size:16px;font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,button{background:#0d1530;border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:9px}
+button{cursor:pointer;font-weight:700}.primary{background:var(--blue);border-color:#5d94ff}.ok{background:#17341f;border-color:#2f7f4d}.warn{background:#3b2b13;border-color:#8f6b22}.bad{background:#391b1b;border-color:#914141}
+.entry{border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;background:#0d152a}
+.muted{color:var(--muted);font-size:12px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:#64748b;margin-right:6px}.dot.live{background:var(--ok)}
+.state{font-size:11px;border:1px solid;padding:2px 7px;border-radius:999px;font-weight:700}
+.approve{color:#bbf7d0;border-color:#1f6f45}.reject{color:#fecaca;border-color:#8d2f2f}.escalate{color:#fde68a;border-color:#8f6b22}
 `;
 var jf = async (url, opts = {}) => {
   const res = await fetch(url, { headers: { "content-type": "application/json", ...opts.headers || {} }, ...opts });
@@ -21757,158 +21752,98 @@ function App() {
   const [wallet, setWallet] = (0, import_react.useState)(null);
   const [status, setStatus] = (0, import_react.useState)({ running: false, intervalSec: 60, command: "SWAP 0.05 SOL TO USDC SLIPPAGE 30" });
   const [events, setEvents] = (0, import_react.useState)([]);
-  const [cmd, setCmd] = (0, import_react.useState)("SWAP 0.1 SOL TO USDC SLIPPAGE 30");
-  const [agentCmd, setAgentCmd] = (0, import_react.useState)("SWAP 0.05 SOL TO USDC SLIPPAGE 30");
-  const [intervalSec, setIntervalSec] = (0, import_react.useState)(60);
-  const refreshWallet = async () => {
+  const refresh = async () => {
     try {
-      setWallet(await jf("/wallet"));
-    } catch (e) {
-      setWallet({ error: e.message });
+      const [w, s, e] = await Promise.all([jf("/wallet"), jf("/agent/status"), jf("/events")]);
+      setWallet(w);
+      setStatus(s);
+      setEvents(e.debates || []);
+    } catch (err) {
+      console.error(err);
     }
   };
-  const refreshStatus = async () => setStatus(await jf("/agent/status"));
-  const refreshEvents = async () => setEvents((await jf("/events")).debates || []);
-  const refreshAll = async () => Promise.all([refreshWallet(), refreshStatus(), refreshEvents()]);
   (0, import_react.useEffect)(() => {
-    refreshAll();
-    const a = setInterval(refreshStatus, 7e3);
-    const b = setInterval(refreshEvents, 1e4);
-    return () => {
-      clearInterval(a);
-      clearInterval(b);
-    };
+    refresh();
+    const t = setInterval(refresh, 8e3);
+    return () => clearInterval(t);
   }, []);
-  const action = async (url, payload) => {
-    try {
-      await jf(url, { method: "POST", body: JSON.stringify(payload) });
-      await refreshAll();
-    } catch (e) {
-      alert(e.message);
-    }
-  };
-  const badge = (d) => d === "APPROVE" ? "approve" : d === "REJECT" ? "reject" : "escalate";
+  const runTick = () => jf("/agent/tick", { method: "POST", body: JSON.stringify({ command: status.command }) }).then(refresh).catch((e) => alert(e.message));
+  const startLoop = () => jf("/agent/start", { method: "POST", body: JSON.stringify({ command: status.command, intervalSec: status.intervalSec || 60 }) }).then(refresh).catch((e) => alert(e.message));
+  const stopLoop = () => jf("/agent/stop", { method: "POST", body: "{}" }).then(refresh).catch((e) => alert(e.message));
+  const createWallet = () => jf("/wallet/create", { method: "POST", body: "{}" }).then(refresh).catch((e) => alert(e.message));
+  const sendProof = () => jf("/dapp/memo", { method: "POST", body: JSON.stringify({ memo: `agent-proof-${Date.now()}` }) }).then(refresh).catch((e) => alert(e.message));
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "wrap", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: styles }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "nav", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "brand", children: [
-        "Two-Brain Wallet ",
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "#8a98b3", fontWeight: 600, fontSize: 13 }, children: "React v4" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pill", children: "Solana Devnet" })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { className: "headline", children: "Reputation & Credibility, Onchain." }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "sub", children: "Agentic wallet decisions are debated by Alpha vs Guard, then executed with policy constraints and verifiable transaction proofs." }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "score", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "n", children: events.length || 0 }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "l", children: "debates recorded" })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: css }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "h", children: [
+          "Agent Activity Dashboard ",
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "muted", children: "React v5" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "scams", children: ["Rugpulls", "Phishing", "Wash Trading", "Front Running", "Sybil Attacks", "Spoofing"].map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "tag", children: t }, t)) })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "sub", children: "Shows live autonomous agent work on Solana devnet." })
       ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "badge", children: "DEVNET" })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Wallet Snapshot" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "Address" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mono", style: { fontSize: 12, marginTop: 4 }, children: wallet?.publicKey || "-" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid mt", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "SOL" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 700, fontSize: 20 }, children: wallet?.sol ?? "-" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "Loop" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 700, fontSize: 20 }, children: status.running ? "Running" : "Idle" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Wallet" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v mono", children: wallet?.publicKey || "not initialized" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { marginTop: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "SOL:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v", children: wallet?.sol ?? "-" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Loop:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "v", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `dot ${status.running ? "live" : ""}` }),
+            status.running ? "running" : "idle"
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/wallet/create", {}), children: "Create Wallet" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: refreshWallet, children: "Refresh" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "good", onClick: () => action("/dapp/memo", { memo: `proof-${Date.now()}` }), children: "Send Memo Proof" })
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "stats", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card stat", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Wallet" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v mono", children: wallet?.publicKey ? `${wallet.publicKey.slice(0, 6)}...${wallet.publicKey.slice(-6)}` : "-" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card stat", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "SOL Balance" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v", children: wallet?.sol ?? "-" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card stat", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Agent Loop" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v", children: status.running ? "running" : "idle" })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card stat", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Last Run" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v", children: status.lastRunAt ? new Date(status.lastRunAt).toLocaleTimeString() : "-" })
-      ] })
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Manual Command" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "muted", children: [
-          "Use: ",
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("code", { children: "SWAP 0.1 SOL TO USDC SLIPPAGE 30" })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { flex: 1 }, value: cmd, onChange: (e) => setCmd(e.target.value) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/command", { text: cmd }), children: "Run Debate" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { marginTop: 10 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: createWallet, children: "Create Wallet" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ok", onClick: sendProof, children: "Send Proof Tx" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: refresh, children: "Refresh" })
         ] })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Autonomous Agent Loop" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { flex: 1 }, value: agentCmd, onChange: (e) => setAgentCmd(e.target.value) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "number", min: "10", value: intervalSec, onChange: (e) => setIntervalSec(Number(e.target.value)), style: { width: 100 } })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Autonomous Agent Controls" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { marginTop: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { flex: 1 }, value: status.command || "", onChange: (e) => setStatus({ ...status, command: e.target.value }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { width: 90 }, type: "number", min: "10", value: status.intervalSec || 60, onChange: (e) => setStatus({ ...status, intervalSec: Number(e.target.value) }) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "good", onClick: () => action("/agent/start", { command: agentCmd, intervalSec }), children: "Start" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "warn", onClick: () => action("/agent/tick", { command: agentCmd }), children: "Run Tick" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "bad", onClick: () => action("/agent/stop", {}), children: "Stop" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { marginTop: 10 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "ok", onClick: startLoop, children: "Start" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "warn", onClick: runTick, children: "Run Tick" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "bad", onClick: stopLoop, children: "Stop" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "muted mt", children: [
-          "running=",
-          String(status.running),
-          " \xB7 interval=",
-          status.intervalSec,
-          "s \xB7 command=",
-          status.command
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted", style: { marginTop: 10 }, children: [
+          "lastRun: ",
+          status.lastRunAt || "-",
+          " ",
+          status.lastError ? `| error: ${status.lastError}` : ""
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Debate Timeline" }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", style: { marginTop: 12 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Live Agent Events" }),
+      events.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", style: { marginTop: 8 }, children: "No events yet." }),
       events.map((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "entry", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { justifyContent: "space-between", alignItems: "center" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
-              d.intent.inputSymbol,
-              "\u2192",
-              d.intent.outputSymbol
-            ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { justifyContent: "space-between" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
+            d.intent.inputSymbol,
+            "\u2192",
+            d.intent.outputSymbol,
+            " (",
+            d.intent.amount,
             " ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "muted", children: [
-              d.intent.amount,
-              " ",
-              d.intent.amountUnit
-            ] })
+            d.intent.amountUnit,
+            ")"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `badge ${badge(d.decision)}`, children: d.decision })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `state ${d.decision.toLowerCase()}`, children: d.decision })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: new Date(d.createdAt).toLocaleString() }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted mt", children: d.alphaReasoning }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: d.guardReasoning }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted mono mt", children: [
-          "TX: ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", style: { marginTop: 6 }, children: d.guardReasoning }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mono muted", style: { marginTop: 6 }, children: [
+          "tx: ",
           d.executionTx || "-"
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => action("/override", { debateId: d.id, approved: true }), children: "Override Approve" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => action("/override", { debateId: d.id, approved: false }), children: "Override Reject" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/execute", { debateId: d.id }), children: "Execute" })
         ] })
       ] }, d.id))
     ] })
