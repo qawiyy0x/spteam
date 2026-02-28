@@ -91,4 +91,5 @@ curl -X POST http://localhost:3000/execute \
 
 ## Docs
 - Design deep dive: `docs/DEEP_DIVE.md`
+- Submission checklist/template: `docs/SUBMISSION.md`
 - Agent instructions: `SKILLS.md`
