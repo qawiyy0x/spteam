@@ -1,11 +1,10 @@
 import { randomUUID } from "crypto";
-import { getQuote } from "./jupiter.js";
+import { executeJupiterSwap, getQuote } from "./jupiter.js";
 import { store } from "./store.js";
 import type { DebateResult, Decision, TradeIntent } from "./types.js";
 
 function estimateNotionalUsd(intent: TradeIntent): number {
   if (intent.amountUnit === "USDC") return intent.amount;
-  // quick heuristic for SOL price to keep day-1 moving
   const solPrice = 150;
   return intent.amount * solPrice;
 }
@@ -20,9 +19,7 @@ function guardAnalysis(intent: TradeIntent, estNotionalUsd: number, slippageBps:
 
   const violations: string[] = [];
 
-  if (!policy.allowedPairs.includes(pair)) {
-    violations.push(`Pair ${pair} is not allowlisted`);
-  }
+  if (!policy.allowedPairs.includes(pair)) violations.push(`Pair ${pair} is not allowlisted`);
   if (slippageBps > policy.maxSlippageBps) {
     violations.push(`Requested slippage ${slippageBps} > policy max ${policy.maxSlippageBps}`);
   }
@@ -95,20 +92,47 @@ export function approveOverride(debateId: string, approved: boolean) {
   return existing;
 }
 
-export function executeDebate(debateId: string) {
+export async function executeDebate(debateId: string) {
   const existing = store.debates.get(debateId);
   if (!existing) return { error: "Debate not found" };
   if (existing.executed) return { error: "Already executed", debate: existing };
   if (existing.decision !== "APPROVE") {
     return { error: `Cannot execute; decision is ${existing.decision}`, debate: existing };
   }
+  if (!existing.quote || typeof existing.quote !== "object" || !("outAmount" in existing.quote)) {
+    return { error: "No valid Jupiter quote available on debate", debate: existing };
+  }
 
-  // Day-1 placeholder: execution simulated; hook real signed Jupiter swap here.
-  const fakeSig = `SIM_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
-  existing.executed = true;
-  existing.executionTx = fakeSig;
-  store.lastExecutionAt = Date.now();
-  store.debates.set(debateId, existing);
+  try {
+    const signature = await executeJupiterSwap(existing.quote);
+    existing.executed = true;
+    existing.executionTx = signature;
+    store.lastExecutionAt = Date.now();
+    store.debates.set(debateId, existing);
+    return { debate: existing, tx: signature, simulated: false };
+  } catch (e) {
+    return {
+      error: `Execution failed: ${(e as Error).message}`,
+      debate: existing,
+    };
+  }
+}
 
-  return { debate: existing, tx: fakeSig, simulated: true };
+export function parseCommandToIntent(commandText: string): TradeIntent | null {
+  const text = commandText.trim().toUpperCase();
+  const match = text.match(/SWAP\s+([0-9]*\.?[0-9]+)\s+(SOL|USDC)\s+TO\s+(SOL|USDC)(?:\s+SLIPPAGE\s+(\d+))?/i);
+  if (!match) return null;
+  const amount = Number(match[1]);
+  const inputSymbol = match[2] as "SOL" | "USDC";
+  const outputSymbol = match[3] as "SOL" | "USDC";
+  const requestedSlippageBps = match[4] ? Number(match[4]) : undefined;
+  if (inputSymbol === outputSymbol) return null;
+
+  return {
+    inputSymbol,
+    outputSymbol,
+    amount,
+    amountUnit: inputSymbol,
+    requestedSlippageBps,
+  };
 }

@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Two-Brain Wallet</title>
+    <style>
+      body { font-family: Inter, Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; background:#0c0c0c; color:#f6f6f6; }
+      input, button, textarea { padding: .6rem; border-radius: 8px; border:1px solid #444; background:#111; color:#fff; }
+      button{ cursor:pointer; }
+      .row{ display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+      .card{ border:1px solid #333; padding:1rem; border-radius:12px; margin-bottom:1rem; background:#131313; }
+      code{ color:#7effa5; }
+    </style>
+  </head>
+  <body>
+    <h1>⚡ Two-Brain Wallet</h1>
+    <p>Command format: <code>SWAP 0.1 SOL TO USDC SLIPPAGE 30</code></p>
+
+    <div class="row">
+      <input id="cmd" style="flex:1" value="SWAP 0.1 SOL TO USDC SLIPPAGE 30" />
+      <button onclick="sendCommand()">Run Debate</button>
+      <button onclick="refreshEvents()">Refresh</button>
+    </div>
+
+    <div id="events"></div>
+
+    <script>
+      async function sendCommand() {
+        const text = document.getElementById('cmd').value;
+        const res = await fetch('/command', {
+          method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.error || 'failed');
+        refreshEvents();
+      }
+
+      async function act(url, payload){
+        const res = await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+        const data = await res.json();
+        if(!res.ok) alert(data.error || 'failed');
+        await refreshEvents();
+      }
+
+      async function refreshEvents() {
+        const res = await fetch('/events');
+        const data = await res.json();
+        const root = document.getElementById('events');
+        root.innerHTML = '';
+        for (const d of data.debates) {
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.innerHTML = `
+            <b>${d.intent.inputSymbol}→${d.intent.outputSymbol}</b> (${d.intent.amount} ${d.intent.amountUnit})<br/>
+            <small>${d.createdAt}</small><br/>
+            <p>${d.alphaReasoning}</p>
+            <p>${d.guardReasoning}</p>
+            <p>Decision: <b>${d.decision}</b> | Executed: <b>${d.executed}</b></p>
+            <p>TX: ${d.executionTx || '-'}</p>
+            <div class='row'>
+              <button onclick="act('/override',{debateId:'${d.id}',approved:true})">Override Approve</button>
+              <button onclick="act('/override',{debateId:'${d.id}',approved:false})">Override Reject</button>
+              <button onclick="act('/execute',{debateId:'${d.id}'})">Execute</button>
+            </div>
+          `;
+          root.appendChild(el);
+        }
+      }
+
+      refreshEvents();
+    </script>
+  </body>
+</html>

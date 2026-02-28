@@ -8,39 +8,37 @@ Two AI roles evaluate every wallet action:
 - **Guard agent** enforces policy and can veto/escalate
 - Execution only proceeds when decision is `APPROVE`
 
-## Current MVP (API)
+## Current MVP (Phase 2)
 - Policy management: `GET/POST /policy`
 - Intent validation: `POST /intent`
+- Command parser: `POST /command` with text like `SWAP 0.1 SOL TO USDC SLIPPAGE 30`
 - Debate engine: `POST /debate`
 - Manual override: `POST /override`
-- Execution endpoint: `POST /execute` (simulated tx signature for now)
+- Execution endpoint: `POST /execute` (**real Jupiter signed swap** if `SOLANA_PRIVATE_KEY` set)
 - Timeline feed: `GET /events`
+- Minimal dashboard UI at `/`
 
 ## Stack
 - Node + TypeScript + Express
 - Zod for schema validation
-- Jupiter Quote API for route checks
+- Solana Web3.js + Jupiter quote/swap APIs
 
 ## Setup
 ```bash
 cp .env.example .env
+# add SOLANA_PRIVATE_KEY (base58) to enable real execution
 npm install
 npm run dev
 ```
 
-## Quick test
+Open browser at:
+`http://localhost:3000`
+
+## API quick test
 ```bash
-curl -X POST http://localhost:3000/debate \
+curl -X POST http://localhost:3000/command \
   -H 'content-type: application/json' \
-  -d '{
-    "intent": {
-      "inputSymbol": "SOL",
-      "outputSymbol": "USDC",
-      "amount": 0.2,
-      "amountUnit": "SOL",
-      "requestedSlippageBps": 30
-    }
-  }'
+  -d '{"text":"SWAP 0.1 SOL TO USDC SLIPPAGE 30"}'
 ```
 
 Then execute with debate id:
@@ -50,8 +48,12 @@ curl -X POST http://localhost:3000/execute \
   -d '{"debateId":"<id>"}'
 ```
 
+## Telegram via OpenClaw (bridge pattern)
+Use OpenClaw to receive Telegram text, then POST the message body to `/command`, and relay the result back.
+This keeps wallet logic isolated in this API while OpenClaw handles messaging.
+
 ## Next steps
-1. Real signed Jupiter swap execution
-2. Minimal frontend dashboard
-3. Telegram command bridge via OpenClaw
+1. Persist debates/policy in SQLite/Postgres
+2. Add wallet balance + position panel
+3. Add strict dry-run mode + simulation diff
 4. Demo video (approve / reject / escalate+override)
