@@ -5,59 +5,163 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Two-Brain Wallet</title>
     <style>
-      body { font-family: Inter, Arial, sans-serif; max-width: 980px; margin: 2rem auto; padding: 0 1rem; background:#0c0c0c; color:#f6f6f6; }
-      input, button, textarea { padding: .6rem; border-radius: 8px; border:1px solid #444; background:#111; color:#fff; }
-      button{ cursor:pointer; }
-      .row{ display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
-      .card{ border:1px solid #333; padding:1rem; border-radius:12px; margin-bottom:1rem; background:#131313; }
-      code{ color:#7effa5; }
-      .muted{ color:#bbb; font-size:.9rem }
+      :root{
+        --bg:#070b14;
+        --panel:#0f1728cc;
+        --panel-2:#121d33cc;
+        --text:#e7ecff;
+        --muted:#a6b2d9;
+        --accent:#5eead4;
+        --accent-2:#60a5fa;
+        --ok:#22c55e;
+        --warn:#f59e0b;
+        --bad:#ef4444;
+        --border:#2a3a66;
+      }
+      *{box-sizing:border-box}
+      body{
+        margin:0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        color:var(--text);
+        background:
+          radial-gradient(1200px 500px at 20% -10%, #1e3a8a55, transparent 60%),
+          radial-gradient(800px 400px at 85% 0%, #0ea5e955, transparent 60%),
+          linear-gradient(180deg,#060913,#080d19 40%,#070b14 100%);
+        min-height:100vh;
+      }
+      .container{max-width:1200px;margin:0 auto;padding:24px 18px 60px}
+      .hero{
+        display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
+        margin-bottom:18px;
+      }
+      .title{font-size:30px;font-weight:800;letter-spacing:.2px;margin:0}
+      .subtitle{margin:6px 0 0;color:var(--muted)}
+      .chip{padding:6px 10px;border:1px solid #2e4b85;background:#0d1a33;border-radius:999px;font-size:12px;color:#b7ccff}
+
+      .grid{display:grid;grid-template-columns:1fr;gap:14px}
+      @media(min-width:980px){.grid{grid-template-columns:1.15fr 1fr}}
+
+      .card{
+        background:linear-gradient(180deg,var(--panel),var(--panel-2));
+        border:1px solid var(--border);
+        border-radius:16px;
+        padding:14px;
+        box-shadow:0 12px 30px #00000040, inset 0 1px 0 #ffffff0a;
+        backdrop-filter: blur(8px);
+      }
+      .card h3{margin:0 0 10px;font-size:15px}
+      .row{display:flex;gap:8px;flex-wrap:wrap}
+      input,button{
+        border-radius:10px;border:1px solid #31456f;background:#0b1327;color:var(--text);
+        padding:10px 12px;font-size:14px;
+      }
+      input{outline:none;min-width:120px}
+      input:focus{border-color:#5b87db;box-shadow:0 0 0 3px #3b82f622}
+      button{cursor:pointer;transition:.18s ease; font-weight:600}
+      button:hover{transform:translateY(-1px);border-color:#4e78c8}
+      .btn-primary{background:linear-gradient(90deg,#2563eb,#0ea5e9);border-color:#4e78c8}
+      .btn-good{background:linear-gradient(90deg,#16a34a,#22c55e);border-color:#329c58}
+      .btn-warn{background:linear-gradient(90deg,#b45309,#f59e0b);border-color:#c17d16}
+      .btn-danger{background:linear-gradient(90deg,#b91c1c,#ef4444);border-color:#be3f3f}
+      .muted{color:var(--muted);font-size:13px;line-height:1.4}
+      code{color:#8af7dd}
+
+      .status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+      @media(min-width:760px){.status-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
+      .stat{
+        border:1px solid #2a3e68;background:#0a1224;border-radius:12px;padding:10px;
+      }
+      .stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+      .stat .v{font-size:15px;font-weight:700;margin-top:4px}
+
+      .timeline .entry{border:1px solid #2b3e69;background:#0a1222;border-radius:12px;padding:12px;margin-bottom:10px}
+      .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid}
+      .approve{color:#c8ffe2;border-color:#2a7f59;background:#13412f}
+      .reject{color:#ffd3d3;border-color:#944242;background:#411f1f}
+      .escalate{color:#ffefc8;border-color:#9b7a33;background:#3f3318}
+      .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;word-break:break-all}
+      .top-space{margin-top:10px}
+      .right{margin-left:auto}
+      .pulse{display:inline-flex;align-items:center;gap:6px}
+      .dot{width:9px;height:9px;border-radius:50%;background:#64748b}
+      .dot.live{background:#22c55e;box-shadow:0 0 0 6px #22c55e22}
     </style>
   </head>
   <body>
-    <h1>⚡ Two-Brain Wallet — Live Agent Console</h1>
-
-    <div class="card">
-      <h3>Wallet & Devnet Proof</h3>
-      <div class="row">
-        <button onclick="createWallet()">Create Wallet</button>
-        <button onclick="refreshWallet()">Refresh Wallet</button>
-        <button onclick="sendMemo()">Send Memo (dApp proof)</button>
+    <div class="container">
+      <div class="hero">
+        <div>
+          <h1 class="title">⚡ Two-Brain Wallet Control Deck</h1>
+          <p class="subtitle">Alpha Planner × Guard Risk Engine · Solana Devnet Autonomous Wallet</p>
+        </div>
+        <div class="chip">DEVNET</div>
       </div>
-      <div id="wallet" class="muted"></div>
-    </div>
 
-    <div class="card">
-      <h3>Manual Command</h3>
-      <p class="muted">Command format: <code>SWAP 0.1 SOL TO USDC SLIPPAGE 30</code></p>
-      <div class="row">
-        <input id="cmd" style="flex:1" value="SWAP 0.1 SOL TO USDC SLIPPAGE 30" />
-        <button onclick="sendCommand()">Run Debate</button>
-        <button onclick="refreshEvents()">Refresh Events</button>
+      <div class="card" style="margin-bottom:14px">
+        <div class="status-grid">
+          <div class="stat"><div class="k">Wallet</div><div id="sWallet" class="v mono">-</div></div>
+          <div class="stat"><div class="k">SOL Balance</div><div id="sSol" class="v">-</div></div>
+          <div class="stat"><div class="k">Agent Loop</div><div id="sLoop" class="v pulse"><span class="dot" id="liveDot"></span><span id="loopText">idle</span></div></div>
+          <div class="stat"><div class="k">Last Run</div><div id="sLast" class="v">-</div></div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="card">
+            <h3>Wallet & Protocol Proof</h3>
+            <div class="row">
+              <button class="btn-primary" onclick="createWallet()">Create Wallet</button>
+              <button onclick="refreshWallet()">Refresh Wallet</button>
+              <button class="btn-good" onclick="sendMemo()">Send Memo (dApp Proof)</button>
+            </div>
+            <p id="wallet" class="muted top-space">Loading wallet…</p>
+          </div>
+
+          <div class="card" style="margin-top:14px">
+            <h3>Manual Trade Command</h3>
+            <p class="muted">Format: <code>SWAP 0.1 SOL TO USDC SLIPPAGE 30</code></p>
+            <div class="row">
+              <input id="cmd" style="flex:1" value="SWAP 0.1 SOL TO USDC SLIPPAGE 30" />
+              <button class="btn-primary" onclick="sendCommand()">Run Debate</button>
+              <button onclick="refreshEvents()">Refresh</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:14px">
+            <h3>Autonomous Agent Loop</h3>
+            <div class="row">
+              <input id="agentCmd" style="flex:1" value="SWAP 0.05 SOL TO USDC SLIPPAGE 30" />
+              <input id="intervalSec" type="number" min="10" value="60" style="width:110px" />
+            </div>
+            <div class="row top-space">
+              <button class="btn-good" onclick="startAgent()">Start</button>
+              <button class="btn-warn" onclick="tickAgent()">Run One Tick</button>
+              <button class="btn-danger" onclick="stopAgent()">Stop</button>
+            </div>
+            <p id="agentStatus" class="muted top-space">Loading agent status…</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="card timeline">
+            <h3>Debate Timeline</h3>
+            <div id="events"></div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="card">
-      <h3>Autonomous Agent</h3>
-      <div class="row">
-        <input id="agentCmd" style="flex:1" value="SWAP 0.05 SOL TO USDC SLIPPAGE 30" />
-        <input id="intervalSec" type="number" min="10" value="60" style="width:120px" />
-        <button onclick="startAgent()">Start Loop</button>
-        <button onclick="tickAgent()">Run One Tick</button>
-        <button onclick="stopAgent()">Stop Loop</button>
-      </div>
-      <div id="agentStatus" class="muted"></div>
-    </div>
-
-    <div id="events"></div>
 
     <script>
       async function jsonFetch(url, opts={}) {
-        const res = await fetch(url, { headers:{'content-type':'application/json'}, ...opts });
+        const headers = {'content-type':'application/json', ...(opts.headers || {})};
+        const res = await fetch(url, { ...opts, headers });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'request failed');
         return data;
       }
+
+      const fmtTime = (iso) => iso ? new Date(iso).toLocaleTimeString() : '-';
 
       async function createWallet(){
         const out = await jsonFetch('/wallet/create', { method:'POST' });
@@ -69,6 +173,8 @@
         try {
           const w = await jsonFetch('/wallet');
           document.getElementById('wallet').innerText = `Address: ${w.publicKey}\nSOL: ${w.sol}\nRPC: ${w.rpcUrl}`;
+          document.getElementById('sWallet').innerText = `${w.publicKey.slice(0,6)}...${w.publicKey.slice(-6)}`;
+          document.getElementById('sSol').innerText = String(w.sol);
         } catch(e){
           document.getElementById('wallet').innerText = e.message;
         }
@@ -79,6 +185,7 @@
         try {
           const out = await jsonFetch('/dapp/memo',{ method:'POST', body:JSON.stringify({ memo })});
           alert(`Memo sent: ${out.signature}`);
+          await refreshWallet();
         } catch(e){ alert(e.message); }
       }
 
@@ -124,6 +231,13 @@
       async function refreshAgentStatus(){
         const s = await jsonFetch('/agent/status');
         document.getElementById('agentStatus').innerText = `running=${s.running} intervalSec=${s.intervalSec} command="${s.command}"\nlastRunAt=${s.lastRunAt || '-'}\nlastError=${s.lastError || '-'}`;
+        document.getElementById('sLoop').innerHTML = `<span class="dot ${s.running ? 'live':''}" id="liveDot"></span><span id="loopText">${s.running ? 'running' : 'idle'}</span>`;
+        document.getElementById('sLast').innerText = fmtTime(s.lastRunAt);
+      }
+
+      function decisionBadge(decision){
+        const c = decision === 'APPROVE' ? 'approve' : decision === 'REJECT' ? 'reject' : 'escalate';
+        return `<span class="badge ${c}">${decision}</span>`;
       }
 
       async function refreshEvents() {
@@ -132,18 +246,21 @@
         root.innerHTML = '';
         for (const d of data.debates) {
           const el = document.createElement('div');
-          el.className = 'card';
+          el.className = 'entry';
           el.innerHTML = `
-            <b>${d.intent.inputSymbol}→${d.intent.outputSymbol}</b> (${d.intent.amount} ${d.intent.amountUnit})<br/>
-            <small>${d.createdAt}</small><br/>
-            <p>${d.alphaReasoning}</p>
-            <p>${d.guardReasoning}</p>
-            <p>Decision: <b>${d.decision}</b> | Executed: <b>${d.executed}</b></p>
-            <p>TX: ${d.executionTx || '-'}</p>
-            <div class='row'>
+            <div class="row" style="align-items:center; margin-bottom:6px">
+              <strong>${d.intent.inputSymbol}→${d.intent.outputSymbol}</strong>
+              <span class="muted">${d.intent.amount} ${d.intent.amountUnit}</span>
+              <span class="right">${decisionBadge(d.decision)}</span>
+            </div>
+            <div class="muted">${new Date(d.createdAt).toLocaleString()}</div>
+            <div class="top-space muted">${d.alphaReasoning}</div>
+            <div class="muted">${d.guardReasoning}</div>
+            <div class="top-space mono muted">TX: ${d.executionTx || '-'}</div>
+            <div class='row top-space'>
               <button onclick="act('/override',{debateId:'${d.id}',approved:true})">Override Approve</button>
               <button onclick="act('/override',{debateId:'${d.id}',approved:false})">Override Reject</button>
-              <button onclick="act('/execute',{debateId:'${d.id}'})">Execute</button>
+              <button class="btn-primary" onclick="act('/execute',{debateId:'${d.id}'})">Execute</button>
             </div>
           `;
           root.appendChild(el);
