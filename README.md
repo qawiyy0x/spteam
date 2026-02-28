@@ -32,19 +32,26 @@ Two AI roles evaluate every wallet action:
 - Autonomous agent endpoints: `/agent/status`, `/agent/tick`, `/agent/start`, `/agent/stop`
 
 ## Stack
-- Node + TypeScript + Express
+- Frontend: React + Vite
+- Backend API: Node + TypeScript + Express
 - Zod schema validation
 - Solana Web3.js + Jupiter APIs
 
 ## Setup
+Backend API:
 ```bash
 cp .env.example .env
 npm install
-npm run dev
+npm run api:dev
+```
+
+Frontend (React):
+```bash
+VITE_API_BASE=http://localhost:3000 npm run dev
 ```
 
 Open browser:
-`http://localhost:3000`
+`http://localhost:5173`
 
 ## Devnet Prototype (required path)
 1. Create wallet:

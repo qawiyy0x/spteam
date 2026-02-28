@@ -23,8 +23,10 @@ button{cursor:pointer;font-weight:700}.primary{background:var(--blue);border-col
 .approve{color:#bbf7d0;border-color:#1f6f45}.reject{color:#fecaca;border-color:#8d2f2f}.escalate{color:#fde68a;border-color:#8f6b22}
 `;
 
+const API_BASE = import.meta.env.VITE_API_BASE || "";
+
 const jf = async (url, opts = {}) => {
-  const res = await fetch(url, { headers: { "content-type": "application/json", ...(opts.headers || {}) }, ...opts });
+  const res = await fetch(`${API_BASE}${url}`, { headers: { "content-type": "application/json", ...(opts.headers || {}) }, ...opts });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "request failed");
   return data;

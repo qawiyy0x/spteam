@@ -1,6 +1,4 @@
 import "dotenv/config";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import cors from "cors";
 import express from "express";
 import { runDebate, approveOverride, executeDebate, parseCommandToIntent } from "./engine.js";
@@ -26,10 +24,6 @@ let agentLoopState: {
   command: "SWAP 0.05 SOL TO USDC SLIPPAGE 30",
 };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const publicDir = path.join(__dirname, "../public");
-app.use(express.static(publicDir));
 
 async function runAgentTick(commandText?: string) {
   const command = commandText ?? agentLoopState.command;
@@ -182,9 +176,6 @@ app.get("/events", (_req, res) => {
   res.json({ debates, count: debates.length });
 });
 
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(publicDir, "index.html"));
-});
 
 const port = Number(process.env.PORT ?? 3000);
 app.listen(port, () => {
