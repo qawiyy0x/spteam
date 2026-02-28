@@ -21722,20 +21722,30 @@ var import_react = __toESM(require_react(), 1);
 var import_client = __toESM(require_client(), 1);
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var styles = `
-:root { --bg:#0b0f17; --panel:#121826; --text:#edf2ff; --muted:#9fafc9; --line:#26324a; --accent:#3b82f6; --good:#22c55e; --warn:#f59e0b; --bad:#ef4444; }
-*{box-sizing:border-box} body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:radial-gradient(1000px 350px at 10% -10%,#1d4ed833,transparent),var(--bg);color:var(--text)}
-.container{max-width:1180px;margin:0 auto;padding:28px 18px 48px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
-h1{margin:0;font-size:34px;letter-spacing:-.02em}.sub{margin:6px 0 0;color:var(--muted)}.pill{border:1px solid var(--line);background:#0f1626;border-radius:999px;padding:7px 12px;font-size:12px;color:#c8d5f2}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}@media(min-width:900px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.card{background:linear-gradient(180deg,#111a2c,#0f1727);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px #00000040}.stat .k{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}.stat .v{margin-top:6px;font-size:15px;font-weight:600}
-.layout{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:1020px){.layout{grid-template-columns:1.1fr .9fr}}
-.section-title{margin:0 0 10px;font-size:16px}.muted{color:var(--muted);font-size:13px;line-height:1.45}.row{display:flex;flex-wrap:wrap;gap:8px}.mt{margin-top:10px}
-input,button{border:1px solid var(--line);border-radius:10px;background:#0d1525;color:var(--text);padding:10px 12px;font-size:14px}input{min-width:120px}button{cursor:pointer;font-weight:600}
-.primary{background:var(--accent);color:#fff;border-color:#4b8cff}.good{color:#d5ffe4;border-color:#2f7f4d;background:#163524}.warn{color:#ffe9c3;border-color:#a56f1e;background:#3a2a13}.danger{color:#ffd4d4;border-color:#914141;background:#391b1b}
-.timeline .entry{border:1px solid var(--line);background:#0b1322;border-radius:12px;padding:11px;margin-bottom:9px}.badge{font-size:11px;font-weight:700;border-radius:999px;padding:4px 8px;border:1px solid}
-.approve{color:#bbf7d0;background:#052e1a;border-color:#1f6f45}.reject{color:#fecaca;background:#3a1313;border-color:#8d2f2f}.escalate{color:#fde68a;background:#3d2e11;border-color:#8f6b22}
-code{color:#9ed0ff;background:#0b1f3a;padding:2px 5px;border-radius:6px}.dot{width:10px;height:10px;border-radius:50%;background:#64748b;display:inline-block;margin-right:6px}.dot.live{background:var(--good)}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+:root{--bg:#f6f7fb;--text:#101216;--muted:#5d6c7b;--line:#e6ebf2;--panel:#fff;--blue:#0082f3;--good:#16a34a;--warn:#f59e0b;--bad:#ef4444}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 18px 56px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
+.brand{font-weight:800;letter-spacing:-.02em;font-size:22px}
+.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-bottom:14px}
+@media(max-width:980px){.hero{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.headline{font-size:44px;line-height:1.02;letter-spacing:-.03em;margin:0 0 12px}
+.sub{color:var(--muted);font-size:15px;line-height:1.5;margin:0}
+.score{display:flex;align-items:baseline;gap:10px;margin-top:16px}.score .n{font-size:56px;font-weight:800;color:var(--blue);letter-spacing:-.03em}.score .l{color:var(--muted)}
+.scams{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tag{padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;color:#334155;background:#fafcff}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+@media(min-width:900px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat .k{font-size:11px;text-transform:uppercase;color:var(--muted)}.stat .v{margin-top:6px;font-size:15px;font-weight:700}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid-3{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:1020px){.grid-3{grid-template-columns:1fr 1fr}}
+input,button{border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 12px;font-size:14px;color:var(--text)}
+button{font-weight:700;cursor:pointer}button:hover{background:#f4f8ff}
+.primary{background:var(--blue);border-color:var(--blue);color:#fff}.primary:hover{background:#0074db}
+.good{background:#f0fdf4;border-color:#bbf7d0;color:#166534}.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}.bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.row{display:flex;gap:8px;flex-wrap:wrap}.muted{color:var(--muted);font-size:13px;line-height:1.45}.mt{margin-top:10px}
+.entry{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
+.badge{font-size:11px;font-weight:700;border-radius:999px;padding:4px 8px;border:1px solid}.approve{color:#166534;background:#f0fdf4;border-color:#bbf7d0}.reject{color:#991b1b;background:#fef2f2;border-color:#fecaca}.escalate{color:#92400e;background:#fffbeb;border-color:#fde68a}
 `;
 var jf = async (url, opts = {}) => {
   const res = await fetch(url, { headers: { "content-type": "application/json", ...opts.headers || {} }, ...opts });
@@ -21762,8 +21772,8 @@ function App() {
   const refreshAll = async () => Promise.all([refreshWallet(), refreshStatus(), refreshEvents()]);
   (0, import_react.useEffect)(() => {
     refreshAll();
-    const a = setInterval(refreshStatus, 8e3);
-    const b = setInterval(refreshEvents, 12e3);
+    const a = setInterval(refreshStatus, 7e3);
+    const b = setInterval(refreshEvents, 1e4);
     return () => {
       clearInterval(a);
       clearInterval(b);
@@ -21778,17 +21788,45 @@ function App() {
     }
   };
   const badge = (d) => d === "APPROVE" ? "approve" : d === "REJECT" ? "reject" : "escalate";
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "container", children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "wrap", children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("style", { children: styles }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "topbar", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", { children: [
-          "Two-Brain Wallet ",
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { fontSize: 14, color: "#9fafc9" }, children: "React v3" })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "sub", children: "Ethos-inspired dark theme \xB7 React frontend \xB7 Solana Devnet" })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "nav", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "brand", children: [
+        "Two-Brain Wallet ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "#8a98b3", fontWeight: 600, fontSize: 13 }, children: "React v4" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pill", children: "DEVNET" })
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "pill", children: "Solana Devnet" })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hero", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { className: "headline", children: "Reputation & Credibility, Onchain." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "sub", children: "Agentic wallet decisions are debated by Alpha vs Guard, then executed with policy constraints and verifiable transaction proofs." }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "score", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "n", children: events.length || 0 }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "l", children: "debates recorded" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "scams", children: ["Rugpulls", "Phishing", "Wash Trading", "Front Running", "Sybil Attacks", "Spoofing"].map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "tag", children: t }, t)) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Wallet Snapshot" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "Address" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mono", style: { fontSize: 12, marginTop: 4 }, children: wallet?.publicKey || "-" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid mt", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "SOL" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 700, fontSize: 20 }, children: wallet?.sol ?? "-" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: "Loop" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { fontWeight: 700, fontSize: 20 }, children: status.running ? "Running" : "Idle" })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/wallet/create", {}), children: "Create Wallet" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: refreshWallet, children: "Refresh" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "good", onClick: () => action("/dapp/memo", { memo: `proof-${Date.now()}` }), children: "Send Memo Proof" })
+        ] })
+      ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "stats", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card stat", children: [
@@ -21801,96 +21839,78 @@ function App() {
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card stat", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Agent Loop" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "v", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `dot ${status.running ? "live" : ""}` }),
-          status.running ? "running" : "idle"
-        ] })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v", children: status.running ? "running" : "idle" })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card stat", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "k", children: "Last Run" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "v", children: status.lastRunAt ? new Date(status.lastRunAt).toLocaleTimeString() : "-" })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "layout", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "section-title", children: "Wallet & dApp Proof" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/wallet/create", {}), children: "Create Wallet" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: refreshWallet, children: "Refresh Wallet" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "good", onClick: () => action("/dapp/memo", { memo: `ui-proof-${Date.now()}` }), children: "Send Memo Proof" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "muted mt", children: wallet?.error ? wallet.error : wallet ? `Address: ${wallet.publicKey}
-SOL: ${wallet.sol}
-RPC: ${wallet.rpcUrl}` : "Loading..." })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Manual Command" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "muted", children: [
+          "Use: ",
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("code", { children: "SWAP 0.1 SOL TO USDC SLIPPAGE 30" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "section-title", children: "Manual Command" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "muted", children: [
-            "Use format: ",
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("code", { children: "SWAP 0.1 SOL TO USDC SLIPPAGE 30" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { flex: 1 }, value: cmd, onChange: (e) => setCmd(e.target.value) }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/command", { text: cmd }), children: "Run Debate" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: refreshEvents, children: "Refresh" })
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "section-title", children: "Autonomous Agent Loop" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { flex: 1 }, value: agentCmd, onChange: (e) => setAgentCmd(e.target.value) }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { width: 100 }, type: "number", min: "10", value: intervalSec, onChange: (e) => setIntervalSec(Number(e.target.value)) })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "good", onClick: () => action("/agent/start", { command: agentCmd, intervalSec }), children: "Start" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "warn", onClick: () => action("/agent/tick", { command: agentCmd }), children: "Run Tick" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "danger", onClick: () => action("/agent/stop", {}), children: "Stop" })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "muted mt", children: [
-            "running=",
-            String(status.running),
-            " intervalSec=",
-            status.intervalSec,
-            ' command="',
-            status.command,
-            '"'
-          ] })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { flex: 1 }, value: cmd, onChange: (e) => setCmd(e.target.value) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/command", { text: cmd }), children: "Run Debate" })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card timeline", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "section-title", children: "Debate Timeline" }),
-        events.map((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "entry", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { justifyContent: "space-between", alignItems: "center" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
-                d.intent.inputSymbol,
-                "\u2192",
-                d.intent.outputSymbol
-              ] }),
-              " ",
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "muted", children: [
-                d.intent.amount,
-                " ",
-                d.intent.amountUnit
-              ] })
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Autonomous Agent Loop" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { style: { flex: 1 }, value: agentCmd, onChange: (e) => setAgentCmd(e.target.value) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "number", min: "10", value: intervalSec, onChange: (e) => setIntervalSec(Number(e.target.value)), style: { width: 100 } })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "good", onClick: () => action("/agent/start", { command: agentCmd, intervalSec }), children: "Start" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "warn", onClick: () => action("/agent/tick", { command: agentCmd }), children: "Run Tick" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "bad", onClick: () => action("/agent/stop", {}), children: "Stop" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "muted mt", children: [
+          "running=",
+          String(status.running),
+          " \xB7 interval=",
+          status.intervalSec,
+          "s \xB7 command=",
+          status.command
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "card mt", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { style: { marginTop: 0 }, children: "Debate Timeline" }),
+      events.map((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "entry", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row", style: { justifyContent: "space-between", alignItems: "center" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
+              d.intent.inputSymbol,
+              "\u2192",
+              d.intent.outputSymbol
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `badge ${badge(d.decision)}`, children: d.decision })
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "muted", children: [
+              d.intent.amount,
+              " ",
+              d.intent.amountUnit
+            ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: new Date(d.createdAt).toLocaleString() }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted mt", children: d.alphaReasoning }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: d.guardReasoning }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted mono mt", children: [
-            "TX: ",
-            d.executionTx || "-"
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => action("/override", { debateId: d.id, approved: true }), children: "Override Approve" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => action("/override", { debateId: d.id, approved: false }), children: "Override Reject" }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/execute", { debateId: d.id }), children: "Execute" })
-          ] })
-        ] }, d.id))
-      ] }) })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `badge ${badge(d.decision)}`, children: d.decision })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: new Date(d.createdAt).toLocaleString() }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted mt", children: d.alphaReasoning }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "muted", children: d.guardReasoning }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "muted mono mt", children: [
+          "TX: ",
+          d.executionTx || "-"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "row mt", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => action("/override", { debateId: d.id, approved: true }), children: "Override Approve" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => action("/override", { debateId: d.id, approved: false }), children: "Override Reject" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { className: "primary", onClick: () => action("/execute", { debateId: d.id }), children: "Execute" })
+        ] })
+      ] }, d.id))
     ] })
   ] });
 }
