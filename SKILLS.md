@@ -1,15 +1,5 @@
 # SKILLS.md
 
-This repo ships a reusable installable skill for other agents:
+Use `SKILL.md` at the repository root as the single source of truth for this project's installable agent skill.
 
-- `skills/solana-two-brain-wallet/SKILL.md`
-
-## Quick capability summary
-- Programmatic wallet creation (`POST /wallet/create`)
-- Automatic transaction signing (memo + swap paths)
-- SOL/SPL balance inspection (`GET /wallet`)
-- Devnet dApp interaction proof (`POST /dapp/memo`)
-- Policy-guarded agent flow (`/debate`, `/override`, `/execute`)
-
-## For external agents
-Import/read `skills/solana-two-brain-wallet/SKILL.md` first, then follow its install + run + verification steps end-to-end.
+No sub-skill files are required.

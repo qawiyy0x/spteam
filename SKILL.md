@@ -22,8 +22,6 @@ Use this skill to stand up a **real agent wallet** on Solana devnet with determi
 4. Test dApp/protocol interaction proof on devnet
 5. Guarded agentic execution loop (debate → approve/override → execute)
 
----
-
 ## Stack
 
 - Node 18+
@@ -33,18 +31,12 @@ Use this skill to stand up a **real agent wallet** on Solana devnet with determi
 - `bs58` (secret decoding)
 - `express`, `zod`, `axios`, `dotenv`
 
----
-
 ## Repository Files Used
 
 - `src/wallet.ts` — wallet create/load, SOL/SPL snapshot, memo tx
 - `src/jupiter.ts` — quote + signed swap tx path
 - `src/engine.ts` — Alpha/Guard decision engine
 - `src/server.ts` — API surface
-- `skills/solana-two-brain-wallet/scripts/smoke-test.sh` — local API smoke test
-- `skills/solana-two-brain-wallet/scripts/devnet-proof.sh` — requirement proof runner
-
----
 
 ## Install
 
@@ -76,8 +68,6 @@ Run:
 npm run dev
 ```
 
----
-
 ## API Contract (agent-facing)
 
 ### Wallet lifecycle
@@ -94,11 +84,7 @@ npm run dev
 - `POST /execute` → execute only when approved
 - `GET /events` → debate timeline / observability
 
----
-
 ## Required Devnet Proof Flow (submission-grade)
-
-Execute in order:
 
 ### 1) Create wallet programmatically
 ```bash
@@ -106,9 +92,7 @@ curl -s -X POST http://localhost:3000/wallet/create
 ```
 
 ### 2) Fund wallet on devnet
-Use one of:
-- Solana faucet / wallet UI
-- `solana airdrop 2 <PUBKEY> --url devnet` (if CLI installed)
+Use faucet or `solana airdrop`.
 
 ### 3) Verify holdings
 ```bash
@@ -122,8 +106,6 @@ curl -s -X POST http://localhost:3000/dapp/memo \
   -d '{"memo":"two-brain-wallet proof"}'
 ```
 
-Expected: tx signature + explorer URL (`cluster=devnet`).
-
 ### 5) Run agent decision loop
 ```bash
 curl -s -X POST http://localhost:3000/command \
@@ -131,7 +113,7 @@ curl -s -X POST http://localhost:3000/command \
   -d '{"text":"SWAP 0.1 SOL TO USDC SLIPPAGE 30"}'
 ```
 
-If response is `ESCALATE`, approve manually:
+If `ESCALATE`:
 ```bash
 curl -s -X POST http://localhost:3000/override \
   -H 'content-type: application/json' \
@@ -145,50 +127,55 @@ curl -s -X POST http://localhost:3000/execute \
   -d '{"debateId":"<ID>"}'
 ```
 
----
+## Embedded Scripts (single-file mode)
+
+### Smoke Test Script
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+BASE_URL="${1:-http://localhost:3000}"
+curl -fsS "$BASE_URL/health" | jq .
+RESP=$(curl -fsS -X POST "$BASE_URL/command" -H 'content-type: application/json' -d '{"text":"SWAP 0.1 SOL TO USDC SLIPPAGE 30"}')
+echo "$RESP" | jq .
+ID=$(echo "$RESP" | jq -r '.id')
+curl -fsS "$BASE_URL/events" | jq '.count'
+echo "Smoke test complete. debateId=$ID"
+```
+
+### Devnet Proof Script
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+BASE_URL="${1:-http://localhost:3000}"
+WALLET=$(curl -fsS -X POST "$BASE_URL/wallet/create")
+echo "$WALLET" | jq .
+ADDR=$(echo "$WALLET" | jq -r '.publicKey')
+echo "Fund this address on devnet before continuing: $ADDR"
+read -r -p "Press ENTER when funded..." _
+curl -fsS "$BASE_URL/wallet" | jq .
+MEMO=$(curl -sS -X POST "$BASE_URL/dapp/memo" -H 'content-type: application/json' -d '{"memo":"two-brain-wallet devnet proof"}')
+echo "$MEMO" | jq .
+DEBATE=$(curl -fsS -X POST "$BASE_URL/command" -H 'content-type: application/json' -d '{"text":"SWAP 0.05 SOL TO USDC SLIPPAGE 30"}')
+echo "$DEBATE" | jq .
+ID=$(echo "$DEBATE" | jq -r '.id')
+DECISION=$(echo "$DEBATE" | jq -r '.decision')
+if [[ "$DECISION" == "ESCALATE" ]]; then
+  curl -fsS -X POST "$BASE_URL/override" -H 'content-type: application/json' -d "{\"debateId\":\"$ID\",\"approved\":true}" | jq .
+fi
+curl -sS -X POST "$BASE_URL/execute" -H 'content-type: application/json' -d "{\"debateId\":\"$ID\"}" | jq .
+```
 
 ## Policy & Security Rules
 
-Enforce all before execution:
-
 - Allowlisted trading pairs only
-- Max notional USD per trade
+- Max notional USD
 - Max slippage bps
-- Cooldown window between swaps
+- Cooldown between swaps
 - Manual override threshold
-
-Operational security:
-
-- Prefer generated wallet file over hardcoded keys
-- Never commit `.env` or `.data/wallet.json`
-- Keep `DRY_RUN=true` until memo proof is successful
-- Use tiny test notionals on first real tx
-
----
+- Never commit secrets or wallet files
 
 ## Troubleshooting
 
-### `Attempt to debit an account but found no prior credit`
-Wallet is unfunded. Airdrop/fund devnet SOL first.
-
-### `No signer configured`
-Set `SOLANA_PRIVATE_KEY` or call `POST /wallet/create`.
-
-### Jupiter swap errors
-- Keep `DRY_RUN=true` during initial testing
-- Ensure wallet funded + network reachable
-- Retry with lower size and higher slippage bounds (within policy)
-
----
-
-## Agent Behavior Standard
-
-When used by another agent, always:
-
-1. Prove wallet creation
-2. Prove signing via `/dapp/memo`
-3. Prove SOL/SPL wallet snapshot
-4. Show at least one `REJECT` and one `APPROVE/ESCALATE->APPROVE` case
-5. Record tx hashes / explorer links in final output
-
-If any proof step fails, stop and report exact failing step + error text.
+- `Attempt to debit ... prior credit` → wallet unfunded
+- `No signer configured` → set `SOLANA_PRIVATE_KEY` or create wallet
+- Swap errors → stay `DRY_RUN=true` until wallet+rpc are verified
