@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
-    "build": "tsc -p tsconfig.json"
+    "build:client": "esbuild src/client.jsx --bundle --outfile=public/bundle.js --format=esm --jsx=automatic",
+    "build": "npm run build:client && tsc -p tsconfig.json"
   },
   "dependencies": {
     "@solana/web3.js": "^1.98.4",
