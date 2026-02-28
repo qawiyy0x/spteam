@@ -3,6 +3,8 @@ import { executeJupiterSwap, getQuote } from "./jupiter.js";
 import { store } from "./store.js";
 import type { DebateResult, Decision, TradeIntent } from "./types.js";
 
+const dryRun = (process.env.DRY_RUN ?? "true").toLowerCase() === "true";
+
 function estimateNotionalUsd(intent: TradeIntent): number {
   if (intent.amountUnit === "USDC") return intent.amount;
   const solPrice = 150;
@@ -104,12 +106,14 @@ export async function executeDebate(debateId: string) {
   }
 
   try {
-    const signature = await executeJupiterSwap(existing.quote);
+    const signature = dryRun
+      ? `DRYRUN_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+      : await executeJupiterSwap(existing.quote);
     existing.executed = true;
     existing.executionTx = signature;
     store.lastExecutionAt = Date.now();
     store.debates.set(debateId, existing);
-    return { debate: existing, tx: signature, simulated: false };
+    return { debate: existing, tx: signature, simulated: dryRun };
   } catch (e) {
     return {
       error: `Execution failed: ${(e as Error).message}`,

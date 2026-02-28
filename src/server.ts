@@ -6,6 +6,7 @@ import express from "express";
 import { runDebate, approveOverride, executeDebate, parseCommandToIntent } from "./engine.js";
 import { debateInputSchema, executeSchema, intentSchema, overrideSchema, policySchema } from "./schema.js";
 import { store } from "./store.js";
+import { createWallet, getWalletSnapshot, sendMemo } from "./wallet.js";
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,30 @@ app.use(express.static(publicDir));
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "two-brain-wallet-api" });
+});
+
+app.post("/wallet/create", (_req, res) => {
+  const out = createWallet();
+  res.json({ ok: true, ...out });
+});
+
+app.get("/wallet", async (_req, res) => {
+  try {
+    const snapshot = await getWalletSnapshot();
+    res.json(snapshot);
+  } catch (e) {
+    res.status(400).json({ error: (e as Error).message });
+  }
+});
+
+app.post("/dapp/memo", async (req, res) => {
+  const memo = String(req.body?.memo ?? "Two-Brain Wallet devnet proof");
+  try {
+    const signature = await sendMemo(memo);
+    res.json({ ok: true, signature, memo, explorer: `https://explorer.solana.com/tx/${signature}?cluster=devnet` });
+  } catch (e) {
+    res.status(400).json({ error: (e as Error).message });
+  }
 });
 
 app.get("/policy", (_req, res) => {
