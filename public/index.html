@@ -5,47 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Two-Brain Wallet</title>
     <style>
-      body { font-family: Inter, Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; background:#0c0c0c; color:#f6f6f6; }
+      body { font-family: Inter, Arial, sans-serif; max-width: 980px; margin: 2rem auto; padding: 0 1rem; background:#0c0c0c; color:#f6f6f6; }
       input, button, textarea { padding: .6rem; border-radius: 8px; border:1px solid #444; background:#111; color:#fff; }
       button{ cursor:pointer; }
       .row{ display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
       .card{ border:1px solid #333; padding:1rem; border-radius:12px; margin-bottom:1rem; background:#131313; }
       code{ color:#7effa5; }
+      .muted{ color:#bbb; font-size:.9rem }
     </style>
   </head>
   <body>
-    <h1>⚡ Two-Brain Wallet</h1>
-    <p>Command format: <code>SWAP 0.1 SOL TO USDC SLIPPAGE 30</code></p>
+    <h1>⚡ Two-Brain Wallet — Live Agent Console</h1>
 
-    <div class="row">
-      <input id="cmd" style="flex:1" value="SWAP 0.1 SOL TO USDC SLIPPAGE 30" />
-      <button onclick="sendCommand()">Run Debate</button>
-      <button onclick="refreshEvents()">Refresh</button>
+    <div class="card">
+      <h3>Wallet & Devnet Proof</h3>
+      <div class="row">
+        <button onclick="createWallet()">Create Wallet</button>
+        <button onclick="refreshWallet()">Refresh Wallet</button>
+        <button onclick="sendMemo()">Send Memo (dApp proof)</button>
+      </div>
+      <div id="wallet" class="muted"></div>
+    </div>
+
+    <div class="card">
+      <h3>Manual Command</h3>
+      <p class="muted">Command format: <code>SWAP 0.1 SOL TO USDC SLIPPAGE 30</code></p>
+      <div class="row">
+        <input id="cmd" style="flex:1" value="SWAP 0.1 SOL TO USDC SLIPPAGE 30" />
+        <button onclick="sendCommand()">Run Debate</button>
+        <button onclick="refreshEvents()">Refresh Events</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Autonomous Agent</h3>
+      <div class="row">
+        <input id="agentCmd" style="flex:1" value="SWAP 0.05 SOL TO USDC SLIPPAGE 30" />
+        <input id="intervalSec" type="number" min="10" value="60" style="width:120px" />
+        <button onclick="startAgent()">Start Loop</button>
+        <button onclick="tickAgent()">Run One Tick</button>
+        <button onclick="stopAgent()">Stop Loop</button>
+      </div>
+      <div id="agentStatus" class="muted"></div>
     </div>
 
     <div id="events"></div>
 
     <script>
-      async function sendCommand() {
-        const text = document.getElementById('cmd').value;
-        const res = await fetch('/command', {
-          method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ text })
-        });
+      async function jsonFetch(url, opts={}) {
+        const res = await fetch(url, { headers:{'content-type':'application/json'}, ...opts });
         const data = await res.json();
-        if (!res.ok) return alert(data.error || 'failed');
-        refreshEvents();
+        if (!res.ok) throw new Error(data.error || 'request failed');
+        return data;
+      }
+
+      async function createWallet(){
+        const out = await jsonFetch('/wallet/create', { method:'POST' });
+        await refreshWallet();
+        alert(`Wallet created: ${out.publicKey}`);
+      }
+
+      async function refreshWallet(){
+        try {
+          const w = await jsonFetch('/wallet');
+          document.getElementById('wallet').innerText = `Address: ${w.publicKey}\nSOL: ${w.sol}\nRPC: ${w.rpcUrl}`;
+        } catch(e){
+          document.getElementById('wallet').innerText = e.message;
+        }
+      }
+
+      async function sendMemo(){
+        const memo = `ui-proof-${Date.now()}`;
+        try {
+          const out = await jsonFetch('/dapp/memo',{ method:'POST', body:JSON.stringify({ memo })});
+          alert(`Memo sent: ${out.signature}`);
+        } catch(e){ alert(e.message); }
+      }
+
+      async function sendCommand() {
+        try {
+          const text = document.getElementById('cmd').value;
+          await jsonFetch('/command', { method:'POST', body: JSON.stringify({ text }) });
+          await refreshEvents();
+        } catch(e){ alert(e.message); }
       }
 
       async function act(url, payload){
-        const res = await fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
-        const data = await res.json();
-        if(!res.ok) alert(data.error || 'failed');
-        await refreshEvents();
+        try {
+          await jsonFetch(url,{method:'POST',body:JSON.stringify(payload)});
+          await refreshEvents();
+        } catch(e){ alert(e.message); }
+      }
+
+      async function tickAgent(){
+        try {
+          const command = document.getElementById('agentCmd').value;
+          await jsonFetch('/agent/tick', { method:'POST', body: JSON.stringify({ command }) });
+          await refreshAll();
+        } catch(e){ alert(e.message); }
+      }
+
+      async function startAgent(){
+        try {
+          const command = document.getElementById('agentCmd').value;
+          const intervalSec = Number(document.getElementById('intervalSec').value || 60);
+          await jsonFetch('/agent/start', { method:'POST', body: JSON.stringify({ command, intervalSec }) });
+          await refreshAgentStatus();
+        } catch(e){ alert(e.message); }
+      }
+
+      async function stopAgent(){
+        try {
+          await jsonFetch('/agent/stop', { method:'POST', body: '{}' });
+          await refreshAgentStatus();
+        } catch(e){ alert(e.message); }
+      }
+
+      async function refreshAgentStatus(){
+        const s = await jsonFetch('/agent/status');
+        document.getElementById('agentStatus').innerText = `running=${s.running} intervalSec=${s.intervalSec} command="${s.command}"\nlastRunAt=${s.lastRunAt || '-'}\nlastError=${s.lastError || '-'}`;
       }
 
       async function refreshEvents() {
-        const res = await fetch('/events');
-        const data = await res.json();
+        const data = await jsonFetch('/events');
         const root = document.getElementById('events');
         root.innerHTML = '';
         for (const d of data.debates) {
@@ -68,7 +150,13 @@
         }
       }
 
-      refreshEvents();
+      async function refreshAll(){
+        await Promise.all([refreshWallet(), refreshAgentStatus(), refreshEvents()]);
+      }
+
+      refreshAll();
+      setInterval(refreshAgentStatus, 8000);
+      setInterval(refreshEvents, 12000);
     </script>
   </body>
 </html>

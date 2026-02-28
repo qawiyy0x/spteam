@@ -12,10 +12,39 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+let agentLoopTimer: NodeJS.Timeout | null = null;
+let agentLoopState: {
+  running: boolean;
+  intervalSec: number;
+  command: string;
+  lastRunAt?: string;
+  lastResult?: unknown;
+  lastError?: string;
+} = {
+  running: false,
+  intervalSec: 60,
+  command: "SWAP 0.05 SOL TO USDC SLIPPAGE 30",
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "../public");
 app.use(express.static(publicDir));
+
+async function runAgentTick(commandText?: string) {
+  const command = commandText ?? agentLoopState.command;
+  const intent = parseCommandToIntent(command);
+  if (!intent) throw new Error("Invalid agent command format");
+
+  const debate = await runDebate(intent);
+  if (debate.decision === "ESCALATE") {
+    approveOverride(debate.id, true);
+    debate.decision = "APPROVE";
+  }
+
+  const execOut = await executeDebate(debate.id);
+  return { debate, execOut };
+}
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "two-brain-wallet-api" });
@@ -43,6 +72,61 @@ app.post("/dapp/memo", async (req, res) => {
   } catch (e) {
     res.status(400).json({ error: (e as Error).message });
   }
+});
+
+app.get("/agent/status", (_req, res) => {
+  res.json(agentLoopState);
+});
+
+app.post("/agent/tick", async (req, res) => {
+  try {
+    const command = typeof req.body?.command === "string" ? req.body.command : undefined;
+    const result = await runAgentTick(command);
+    agentLoopState.lastRunAt = new Date().toISOString();
+    agentLoopState.lastResult = result;
+    agentLoopState.lastError = undefined;
+    res.json({ ok: true, ...result });
+  } catch (e) {
+    const msg = (e as Error).message;
+    agentLoopState.lastError = msg;
+    res.status(400).json({ error: msg });
+  }
+});
+
+app.post("/agent/start", (req, res) => {
+  const intervalSec = Number(req.body?.intervalSec ?? 60);
+  const command = typeof req.body?.command === "string" ? req.body.command : agentLoopState.command;
+
+  if (!Number.isFinite(intervalSec) || intervalSec < 10) {
+    return res.status(400).json({ error: "intervalSec must be >= 10" });
+  }
+
+  agentLoopState.intervalSec = intervalSec;
+  agentLoopState.command = command;
+
+  if (agentLoopTimer) clearInterval(agentLoopTimer);
+  agentLoopTimer = setInterval(async () => {
+    try {
+      const result = await runAgentTick();
+      agentLoopState.lastRunAt = new Date().toISOString();
+      agentLoopState.lastResult = result;
+      agentLoopState.lastError = undefined;
+    } catch (e) {
+      agentLoopState.lastError = (e as Error).message;
+    }
+  }, intervalSec * 1000);
+
+  agentLoopState.running = true;
+  res.json({ ok: true, state: agentLoopState });
+});
+
+app.post("/agent/stop", (_req, res) => {
+  if (agentLoopTimer) {
+    clearInterval(agentLoopTimer);
+    agentLoopTimer = null;
+  }
+  agentLoopState.running = false;
+  res.json({ ok: true, state: agentLoopState });
 });
 
 app.get("/policy", (_req, res) => {

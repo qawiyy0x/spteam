@@ -28,7 +28,8 @@ Two AI roles evaluate every wallet action:
 - Manual override: `POST /override`
 - Execution endpoint: `POST /execute` (dry-run by default; real signed Jupiter swap when configured)
 - Timeline feed: `GET /events`
-- Minimal dashboard UI at `/`
+- Live dashboard UI at `/` (wallet status, memo proof, debates, autonomous agent loop)
+- Autonomous agent endpoints: `/agent/status`, `/agent/tick`, `/agent/start`, `/agent/stop`
 
 ## Stack
 - Node + TypeScript + Express
