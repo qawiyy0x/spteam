@@ -55,7 +55,20 @@ export default function EventsFeed({ events }) {
                                 <div className="event-meta">
                                     <span>{new Date(d.createdAt).toLocaleString()}</span>
                                     <span className="event-tx">
-                                        tx: {d.executionTx || '—'}
+                                        tx:{' '}
+                                        {!d.executionTx
+                                            ? '—'
+                                            : String(d.executionTx).startsWith('DRYRUN_')
+                                              ? d.executionTx
+                                              : (
+                                                    <a
+                                                        href={`https://explorer.solana.com/tx/${d.executionTx}?cluster=devnet`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {d.executionTx}
+                                                    </a>
+                                                )}
                                     </span>
                                 </div>
                             </div>
