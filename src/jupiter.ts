@@ -1,5 +1,5 @@
 import axios from "axios";
-import { VersionedTransaction } from "@solana/web3.js";
+import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import { MINTS } from "./constants.js";
 import type { TradeIntent } from "./types.js";
 import { getConnection, getSigner } from "./wallet.js";
@@ -18,7 +18,14 @@ export async function getQuote(intent: TradeIntent, slippageBps: number) {
   const amount = toBaseUnits(intent);
 
   const { data } = await axios.get(quoteUrl, {
-    params: { inputMint, outputMint, amount, slippageBps, onlyDirectRoutes: false },
+    params: {
+      inputMint,
+      outputMint,
+      amount,
+      slippageBps,
+      onlyDirectRoutes: false,
+      asLegacyTransaction: true,
+    },
     timeout: 15_000,
   });
 
@@ -37,6 +44,7 @@ export async function executeJupiterSwap(quoteResponse: unknown): Promise<string
       wrapAndUnwrapSol: true,
       dynamicComputeUnitLimit: true,
       prioritizationFeeLamports: "auto",
+      asLegacyTransaction: true,
     },
     { timeout: 20_000 }
   );
@@ -44,12 +52,20 @@ export async function executeJupiterSwap(quoteResponse: unknown): Promise<string
   const swapTransactionBase64 = data?.swapTransaction as string | undefined;
   if (!swapTransactionBase64) throw new Error("Jupiter swap API did not return swapTransaction");
 
-  const tx = VersionedTransaction.deserialize(Buffer.from(swapTransactionBase64, "base64"));
-  tx.sign([signer]);
+  const txBytes = Buffer.from(swapTransactionBase64, "base64");
 
-  const signature = await connection.sendTransaction(tx, { maxRetries: 2, preflightCommitment: "confirmed" });
-  const latest = await connection.getLatestBlockhash("confirmed");
-  await connection.confirmTransaction({ signature, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, "confirmed");
-
-  return signature;
+  try {
+    const vtx = VersionedTransaction.deserialize(txBytes);
+    vtx.sign([signer]);
+    const signature = await connection.sendTransaction(vtx, { maxRetries: 2, preflightCommitment: "confirmed" });
+    const latest = await connection.getLatestBlockhash("confirmed");
+    await connection.confirmTransaction({ signature, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, "confirmed");
+    return signature;
+  } catch {
+    const ltx = Transaction.from(txBytes);
+    ltx.sign(signer);
+    const signature = await connection.sendRawTransaction(ltx.serialize(), { maxRetries: 2, preflightCommitment: "confirmed" });
+    await connection.confirmTransaction(signature, "confirmed");
+    return signature;
+  }
 }
