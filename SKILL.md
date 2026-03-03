@@ -71,6 +71,10 @@ Run API:
 npm run api:dev
 ```
 
+### Render persistence (required for stable wallet)
+Set `SOLANA_PRIVATE_KEY` in Render env to a fixed base58 secret key.
+This prevents wallet rotation across redeploys and keeps one agent identity/address.
+
 Run frontend:
 
 ```bash
