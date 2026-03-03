@@ -1,181 +1,147 @@
 ---
 name: solana-two-brain-wallet
-description: Build, install, and operate a devnet-first Solana agentic wallet (Alpha planner + Guard risk gate) that can programmatically create wallets, sign transactions automatically, hold SOL/SPL tokens, interact with test dApps/protocols, and execute policy-constrained swaps. Use when implementing or running autonomous wallet flows for hackathons, demos, or production prototypes on Solana.
+description: Build and operate a devnet-first Solana agentic wallet with a two-brain decision model (Alpha planner + Guard policy gate). Use when agents must create wallets programmatically, sign transactions automatically, hold SOL/SPL, interact with devnet protocols, and run autonomous loops with safety controls.
 ---
 
 # Solana Two-Brain Wallet
 
-Use this skill to stand up a **real agent wallet** on Solana devnet with deterministic safety rails.
+## What Alpha and Guard do
 
-## Defaults (non-negotiable)
+- **Alpha (planner brain):** proposes an action from command/intent and explains *why*.
+- **Guard (risk brain):** validates policy and can `APPROVE`, `REJECT`, or `ESCALATE`.
+- **Executor:** only executes when final decision is `APPROVE`.
 
-- Network: **Devnet first** (`https://api.devnet.solana.com`)
-- Mode: `DRY_RUN=true` until wallet is funded + memo proof works
-- Execution gate: never execute unless decision = `APPROVE`
-- Human-in-loop: use override for escalated decisions
+In API responses/events:
+- `alphaReasoning` = Alpha output
+- `guardReasoning` + `decision` = Guard output
 
-## Capability Checklist (what this skill guarantees)
+---
+
+## Defaults
+
+- Network: **Devnet** (`https://api.devnet.solana.com`)
+- Safety mode: `DRY_RUN=true` initially
+- Cooldown enforced between executions
+- No execution if decision is not `APPROVE`
+
+---
+
+## Capability Checklist
 
 1. Programmatic wallet creation
-2. Automatic signing of transactions
-3. SOL/SPL balance inspection
-4. Test dApp/protocol interaction proof on devnet
-5. Guarded agentic execution loop (debate → approve/override → execute)
+2. Automatic signing
+3. SOL/SPL inspection
+4. Devnet protocol interaction proof
+5. Autonomous loop with policy gate
+
+---
 
 ## Stack
 
-- Node 18+
-- npm
-- TypeScript
-- `@solana/web3.js` (tx signing + chain interaction)
-- `bs58` (secret decoding)
-- `express`, `zod`, `axios`, `dotenv`
+- Frontend: React + Vite
+- API: Node + TypeScript + Express
+- Solana: `@solana/web3.js`
+- Validation: `zod`
 
-## Repository Files Used
+---
 
-- `src/wallet.ts` — wallet create/load, SOL/SPL snapshot, memo tx
-- `src/jupiter.ts` — quote + signed swap tx path
-- `src/engine.ts` — Alpha/Guard decision engine
-- `src/server.ts` — API surface
-
-## Install
-
-From repository root:
+## Setup (local)
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-Set `.env`:
+Recommended `.env`:
 
 ```bash
-PORT=3000
 SOLANA_RPC_URL=https://api.devnet.solana.com
-SOLANA_PRIVATE_KEY=
 SOLANA_WALLET_PATH=.data/wallet.json
 DRY_RUN=true
-JUPITER_QUOTE_URL=https://quote-api.jup.ag/v6/quote
-JUPITER_SWAP_URL=https://quote-api.jup.ag/v6/swap
+JUPITER_QUOTE_URL=https://lite-api.jup.ag/swap/v1/quote
+JUPITER_SWAP_URL=https://lite-api.jup.ag/swap/v1/swap
 DEFAULT_MAX_NOTIONAL_USD=50
 DEFAULT_MAX_SLIPPAGE_BPS=50
 DEFAULT_COOLDOWN_MINUTES=5
 ```
 
-Run:
+Run API:
 
 ```bash
-npm run dev
+npm run api:dev
 ```
 
-## API Contract (agent-facing)
+Run frontend:
 
-### Wallet lifecycle
-- `POST /wallet/create` → create + persist wallet file
-- `GET /wallet` → SOL + SPL snapshot
+```bash
+VITE_API_BASE=http://localhost:3000 npm run dev
+```
 
-### Protocol interaction proof
-- `POST /dapp/memo` → signed devnet tx to Solana Memo program
+---
 
-### Agentic flow
-- `POST /command` → parse text command (`SWAP 0.1 SOL TO USDC SLIPPAGE 30`)
-- `POST /debate` → explicit structured intent path
-- `POST /override` → manual approve/reject for escalations
-- `POST /execute` → execute only when approved
-- `GET /events` → debate timeline / observability
+## API Endpoints
 
-## Required Devnet Proof Flow (submission-grade)
+### Wallet
+- `POST /wallet/create`
+- `GET /wallet`
 
-### 1) Create wallet programmatically
+### Protocol proof
+- `POST /dapp/memo`
+
+### Agent flow
+- `POST /command`
+- `POST /debate`
+- `POST /override`
+- `POST /execute`
+- `GET /events`
+
+### Autonomous runtime
+- `GET /agent/status`
+- `POST /agent/tick`
+- `POST /agent/start`
+- `POST /agent/stop`
+
+---
+
+## Devnet Proof Flow
+
 ```bash
 curl -s -X POST http://localhost:3000/wallet/create
-```
-
-### 2) Fund wallet on devnet
-Use faucet or `solana airdrop`.
-
-### 3) Verify holdings
-```bash
 curl -s http://localhost:3000/wallet
+curl -s -X POST http://localhost:3000/dapp/memo -H 'content-type: application/json' -d '{"memo":"proof"}'
+curl -s -X POST http://localhost:3000/agent/tick -H 'content-type: application/json' -d '{"command":"SWAP 0.01 SOL TO USDC SLIPPAGE 30"}'
+curl -s http://localhost:3000/events
 ```
 
-### 4) Verify signed protocol interaction
-```bash
-curl -s -X POST http://localhost:3000/dapp/memo \
-  -H 'content-type: application/json' \
-  -d '{"memo":"two-brain-wallet proof"}'
-```
+---
 
-### 5) Run agent decision loop
-```bash
-curl -s -X POST http://localhost:3000/command \
-  -H 'content-type: application/json' \
-  -d '{"text":"SWAP 0.1 SOL TO USDC SLIPPAGE 30"}'
-```
+## Shared Website Mode (other people’s agents visible on your frontend)
 
-If `ESCALATE`:
-```bash
-curl -s -X POST http://localhost:3000/override \
-  -H 'content-type: application/json' \
-  -d '{"debateId":"<ID>","approved":true}'
-```
+Yes, possible.
 
-Then execute:
-```bash
-curl -s -X POST http://localhost:3000/execute \
-  -H 'content-type: application/json' \
-  -d '{"debateId":"<ID>"}'
-```
+Use one shared backend URL (e.g. Render) and point all frontends/agents to it:
 
-## Embedded Scripts (single-file mode)
+- Frontend env: `VITE_API_BASE=https://your-backend-url`
+- Agents call the same API (`/agent/tick` or `/agent/start`)
+- All runs appear in shared `/events`
 
-### Smoke Test Script
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-BASE_URL="${1:-http://localhost:3000}"
-curl -fsS "$BASE_URL/health" | jq .
-RESP=$(curl -fsS -X POST "$BASE_URL/command" -H 'content-type: application/json' -d '{"text":"SWAP 0.1 SOL TO USDC SLIPPAGE 30"}')
-echo "$RESP" | jq .
-ID=$(echo "$RESP" | jq -r '.id')
-curl -fsS "$BASE_URL/events" | jq '.count'
-echo "Smoke test complete. debateId=$ID"
-```
+**Important:** current event model is shared/global and not yet tenant-isolated. For public multi-user production, add auth + per-agent identity tagging + rate limits.
 
-### Devnet Proof Script
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-BASE_URL="${1:-http://localhost:3000}"
-WALLET=$(curl -fsS -X POST "$BASE_URL/wallet/create")
-echo "$WALLET" | jq .
-ADDR=$(echo "$WALLET" | jq -r '.publicKey')
-echo "Fund this address on devnet before continuing: $ADDR"
-read -r -p "Press ENTER when funded..." _
-curl -fsS "$BASE_URL/wallet" | jq .
-MEMO=$(curl -sS -X POST "$BASE_URL/dapp/memo" -H 'content-type: application/json' -d '{"memo":"two-brain-wallet devnet proof"}')
-echo "$MEMO" | jq .
-DEBATE=$(curl -fsS -X POST "$BASE_URL/command" -H 'content-type: application/json' -d '{"text":"SWAP 0.05 SOL TO USDC SLIPPAGE 30"}')
-echo "$DEBATE" | jq .
-ID=$(echo "$DEBATE" | jq -r '.id')
-DECISION=$(echo "$DEBATE" | jq -r '.decision')
-if [[ "$DECISION" == "ESCALATE" ]]; then
-  curl -fsS -X POST "$BASE_URL/override" -H 'content-type: application/json' -d "{\"debateId\":\"$ID\",\"approved\":true}" | jq .
-fi
-curl -sS -X POST "$BASE_URL/execute" -H 'content-type: application/json' -d "{\"debateId\":\"$ID\"}" | jq .
-```
+---
 
-## Policy & Security Rules
+## Policy and Security
 
-- Allowlisted trading pairs only
-- Max notional USD
-- Max slippage bps
-- Cooldown between swaps
-- Manual override threshold
-- Never commit secrets or wallet files
+- Pair allowlist
+- Max notional
+- Max slippage
+- Cooldown window
+- Override threshold
+- Keep secrets out of git (`.env`, `.data/*`)
+
+---
 
 ## Troubleshooting
 
-- `Attempt to debit ... prior credit` → wallet unfunded
-- `No signer configured` → set `SOLANA_PRIVATE_KEY` or create wallet
-- Swap errors → stay `DRY_RUN=true` until wallet+rpc are verified
+- `Attempt to debit...prior credit` → wallet not funded on devnet
+- `No signer configured` → call `/wallet/create` or set `SOLANA_PRIVATE_KEY`
+- Repeated `REJECT cooldown` → reduce loop frequency or increase loop interval above cooldown
